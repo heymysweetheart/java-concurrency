@@ -13,9 +13,9 @@ import java.util.List;
 public class WordsLoader {
 
 	public static List<String> load(String path) {
-		Path file = Paths.get(path);
+//		Path file = Paths.get(path);
 		List<String> data = new ArrayList<String>();
-		try (InputStream in = Files.newInputStream(file);
+		try (InputStream in = WordsLoader.class.getClassLoader().getResourceAsStream(path);
 				BufferedReader reader = new BufferedReader(
 						new InputStreamReader(in))) {
 			String line = null;
