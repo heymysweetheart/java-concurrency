@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.javferna.packtpub.mastering.bestMatching.common.BestMatchingData;
+import com.javferna.packtpub.mastering.bestMatching.distance.LevenshteinDistance;
 
 public class BestMatchingBasicConcurrentCalculation {
 
@@ -28,9 +29,33 @@ public class BestMatchingBasicConcurrentCalculation {
 			} else {
 				endIndex = (i + 1) * step;
 			}
-			BestMatchingBasicTask task = new BestMatchingBasicTask(startIndex, endIndex, dictionary, word);
-			Future<BestMatchingData> future = executor.submit(task);
-			results.add(future);
+
+			int start = startIndex;
+			int end = endIndex;
+//			This is the old way to create a callable way
+//			BestMatchingBasicTask task = new BestMatchingBasicTask(startIndex, endIndex, dictionary, word);
+//			Future<BestMatchingData> future = executor.submit(task);
+			Future<BestMatchingData> dataFuture = executor.submit(() -> {
+				List<String> rets = new ArrayList<String>();
+				int minDistance = Integer.MAX_VALUE;
+				int distance;
+				for (int j = start; j < end; j++) {
+					distance = LevenshteinDistance.calculate(word, dictionary.get(j));
+					if (distance < minDistance) {
+						rets.clear();
+						minDistance = distance;
+						rets.add(dictionary.get(j));
+					} else if (distance == minDistance) {
+						rets.add(dictionary.get(j));
+					}
+				}
+
+				BestMatchingData result = new BestMatchingData();
+				result.setWords(rets);
+				result.setDistance(minDistance);
+				return result;
+			});
+			results.add(dataFuture);
 		}
 		
 		executor.shutdown();

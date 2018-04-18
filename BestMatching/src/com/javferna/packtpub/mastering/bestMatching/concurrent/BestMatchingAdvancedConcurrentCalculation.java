@@ -2,12 +2,10 @@ package com.javferna.packtpub.mastering.bestMatching.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 
 import com.javferna.packtpub.mastering.bestMatching.common.BestMatchingData;
+import com.javferna.packtpub.mastering.bestMatching.distance.LevenshteinDistance;
 
 public class BestMatchingAdvancedConcurrentCalculation {
 
@@ -20,17 +18,50 @@ public class BestMatchingAdvancedConcurrentCalculation {
 		int step = size / numCores;
 		int startIndex, endIndex;
 		List<Future<BestMatchingData>> results;
-		List<BestMatchingBasicTask> tasks = new ArrayList<>();
+//		List<BestMatchingBasicTask> tasks = new ArrayList<>();
+//
+//		for (int i = 0; i < numCores; i++) {
+//			startIndex = i * step;
+//			if (i == numCores - 1) {
+//				endIndex = dictionary.size();
+//			} else {
+//				endIndex = (i + 1) * step;
+//			}
+//			BestMatchingBasicTask task = new BestMatchingBasicTask(startIndex, endIndex, dictionary, word);
+//			tasks.add(task);
+//		}
 
-		for (int i = 0; i < numCores; i++) {
+		List<Callable<BestMatchingData>> tasks = new ArrayList<>();
+		for(int i=0; i< numCores; i++) {
 			startIndex = i * step;
-			if (i == numCores - 1) {
-				endIndex = dictionary.size();
-			} else {
+			if(i < numCores -1) {
 				endIndex = (i + 1) * step;
+			} else {
+				endIndex = size;
 			}
-			BestMatchingBasicTask task = new BestMatchingBasicTask(startIndex, endIndex, dictionary, word);
-			tasks.add(task);
+
+			int start = startIndex, end = endIndex;
+
+			tasks.add(() -> {
+				List<String> rets =new ArrayList<String>();
+				int minDistance=Integer.MAX_VALUE;
+				int distance;
+				for (int j=start; j<end; j++) {
+					distance= LevenshteinDistance.calculate(word,dictionary.get(j));
+					if (distance<minDistance) {
+						rets.clear();
+						minDistance=distance;
+						rets.add(dictionary.get(j));
+					} else if (distance==minDistance) {
+						rets.add(dictionary.get(j));
+					}
+				}
+
+				BestMatchingData result=new BestMatchingData();
+				result.setWords(rets);
+				result.setDistance(minDistance);
+				return result;
+			});
 		}
 
 		results = executor.invokeAll(tasks);

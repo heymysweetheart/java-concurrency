@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.javferna.packtpub.mastering.bestMatching.common.BestMatchingData;
+import com.javferna.packtpub.mastering.bestMatching.common.DataPath;
 import com.javferna.packtpub.mastering.bestMatching.data.WordsLoader;
 
 
@@ -12,7 +13,7 @@ public class BestMatchingSerialMain {
 	public static void main(String[] args) {
 
 		Date startTime, endTime;
-		List<String> dictionary=WordsLoader.load("BestMatching/data/UK Advanced Cryptics Dictionary.txt");
+		List<String> dictionary=WordsLoader.load(DataPath.PATH);
 		
 		System.out.println("Dictionary Size: "+dictionary.size());
 		
