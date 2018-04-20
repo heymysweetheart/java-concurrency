@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 
 import com.javferna.packtpub.mastering.numericalSummarization.common.Record;
 import com.javferna.packtpub.mastering.numericalSummarization.serial.data.SerialDataLoader;
+import com.javferna.packtpub.mastering.numericalSummarization.serial.data.SerialDataLoaderNew;
 import com.javferna.packtpub.mastering.numericalSummarization.serial.data.SerialStatistics;
+import com.javferna.packtpub.mastering.numericalSummarization.util.DataUtil;
 
 public class SerialMain {
 
@@ -26,9 +28,9 @@ public class SerialMain {
 	}
 
 	public static void main(String[] args) throws IOException {
-		Path path = Paths.get("data","Online_Retail.csv");
-		records = SerialDataLoader.load(path);
-		
+		records = SerialDataLoaderNew.load(DataUtil.PATH);
+//		records = SerialDataLoader.load(path);
+
 		for (int i = 0; i < 10; i++) {
 			measure("Serial Customers from UnitedKingdom", () -> SerialStatistics.customersFromUnitedKingdom(records));
 			measure("Serial Quantity from UnitedKingdom", () -> SerialStatistics.quantityFromUnitedKingdom(records));
