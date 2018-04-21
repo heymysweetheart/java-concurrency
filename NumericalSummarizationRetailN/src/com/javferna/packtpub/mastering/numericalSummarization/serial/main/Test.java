@@ -26,8 +26,20 @@ public class Test {
         Date end = new Date();
         System.out.println("Time used: " + (end.getTime() -start.getTime()));
 
-        records.stream()
+        start = new Date();
+        Double collect = records.stream()
+//                .mapToDouble(record -> record.getQuantity())
+                .collect(Collectors.averagingDouble(Record::getQuantity));
+        System.out.println(collect);
+        end = new Date();
+        System.out.println("Time used: " + (end.getTime() -start.getTime()));
+
+        start = new Date();
+        Double aDouble = records.stream()
                 .mapToDouble(record -> record.getQuantity())
-                .collect(Collectors.averagingDouble())
+                .average().getAsDouble();
+        System.out.println(aDouble);
+        end = new Date();
+        System.out.println("Time used: " + (end.getTime() -start.getTime()));
     }
 }
