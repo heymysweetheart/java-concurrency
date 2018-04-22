@@ -18,6 +18,7 @@ public class Main {
 
         serialGPAOfCourse(studentGrades);
         parallelGPAOfCourse(studentGrades);
+        advancedParallelGPAOfCourse(studentGrades);
 
         serialGPAOfDept(studentGrades);
         parallelGPAOfDept(studentGrades);
@@ -26,6 +27,16 @@ public class Main {
         parallelHighestAndLowestGpa(studentGrades);
 
 
+    }
+
+    private static void serialGPAOfCourse(List<StudentGrade> studentGrades) {
+        Date start = new Date();
+        Map<String, List<StudentGrade>> scoresByCourse = studentGrades.stream()
+                .collect(Collectors.groupingBy(StudentGrade::getCourseNumber));
+
+        scoresByCourse.forEach((s, courseGrades) -> printGPA(s, courseGrades));
+        Date end = new Date();
+        System.out.println("Serial Course GPA computation used time: " + (end.getTime() - start.getTime()));
     }
 
     private static void parallelGPAOfCourse(List<StudentGrade> studentGrades) {
@@ -38,15 +49,32 @@ public class Main {
         System.out.println("Parallel Course GPA computation used time: " + (end.getTime() - start.getTime()));
     }
 
-    private static void serialGPAOfCourse(List<StudentGrade> studentGrades) {
+    /** Create a direct map with self-defined collector */
+    private static void advancedParallelGPAOfCourse(List<StudentGrade> studentGrades) {
         Date start = new Date();
-        Map<String, List<StudentGrade>> scoresByCourse = studentGrades.stream()
-                .collect(Collectors.groupingBy(StudentGrade::getCourseNumber));
-
-        scoresByCourse.forEach((s, courseGrades) -> printGPA(s, courseGrades));
+        Map<String, Double> doubleMap = studentGrades.parallelStream()
+                .collect(Collectors.groupingBy(StudentGrade::getCourseNumber,
+                        Collector.of(
+                                () -> new double[]{0, 0},//Supplier provides the initial value, this is temp data type
+                                (tempDoubleArr, studentGrade) -> {
+                                    tempDoubleArr[0] += studentGrade.getTotalScore();
+                                    tempDoubleArr[1] += studentGrade.getCredits();
+                                },//Accumulator of BiConsumer type
+                                (tempDoubleArr1, tempDoubleArr2) -> {
+                                    tempDoubleArr1[0] += tempDoubleArr2[0];
+                                    tempDoubleArr1[1] += tempDoubleArr2[1];
+                                    return tempDoubleArr1;
+                                },//Combiner
+                                temp -> temp[0] / temp[1] //Finisher
+                        )));
+        for (Map.Entry<String, Double> doubleEntry : doubleMap.entrySet()) {
+            System.out.printf("Course id: %s, average gpa is: %.2f\n", doubleEntry.getKey(), doubleEntry.getValue());
+        }
         Date end = new Date();
-        System.out.println("Serial Student GPA computation used time: " + (end.getTime() - start.getTime()));
+        System.out.println("Advanced Parallel Course GPA computation used time: " + (end.getTime() - start.getTime()));
     }
+
+
 
     private static void serialGPAOfDept(List<StudentGrade> studentGrades) {
         Date start = new Date();
@@ -179,7 +207,7 @@ public class Main {
 
         Optional<Map.Entry<String, Double>> maxGpaOptional = gpaMap.entrySet().stream()
 //                .sorted((e1, e2)-> ((e1.getValue() - e2.getValue()) > 0 ? 1 : -1))
-                .max((e1, e2) -> ((e1.getValue() - e2.getValue()) > 0 ? 1 : -1));
+                .max(gpaComparator);
 
         Map.Entry<String, Double> minGpa = gpaMap.entrySet().stream()
                 .min((e1, e2) -> ((e1.getValue() - e2.getValue()) > 0 ? 1 : -1)).get();
@@ -193,6 +221,8 @@ public class Main {
     private static void printline() {
         System.out.println("===============================================================");
     }
+
+    static Comparator<Map.Entry<String, Double>> gpaComparator = (entry1, entry2) -> (entry1.getValue() - entry2.getValue() > 0 ? 1 : -1);
 }
 
 
@@ -217,3 +247,4 @@ class GPAAverager implements DoubleConsumer {
         this.total += gpaAverager.total;
     }
 }
+

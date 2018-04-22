@@ -31,7 +31,7 @@ public class DataUtil {
         Course course;
 
         //Create 2500 students
-        for(int i=0;i<2_500;i++) {
+        for(int i=0;i<550000;i++) {
             studentId++;
             //Each student takes four courses
             for(int j=0; j<4;j++) {
