@@ -9,7 +9,7 @@ import com.yuliang.serial.SerialHistogram;
 
 public class CompleteMain {
 
-    public static final int N = 15000;
+    public static final int N = 20000;
     public static final int FIRST_MAX = 10;
     public static final int SECOND_MAX= 100;
 
