@@ -110,23 +110,6 @@ public class JacobiRelaxation {
         }
     }
 
-//    public static void main(String[] args) {
-//        initializeData();
-//        sequential(a, b);
-//        parallel(a1,b1);
-//        System.out.println("Speed up is: " + sequentialTime / (float)parallelTime);
-//
-//        for(int i=0; i<n; i++) {
-//            for(int j=0; j<n; j++) {
-//                if(a[i][j] != a1[i][j]) {
-//                    System.out.print("The result is not equal." + "i: " +i + "j:" + j);
-//                    System.out.print("a[i][j]=" + a[i][j]);
-//                    System.out.print("a1[i][j]=" + a1[i][j]);
-//                }
-//            }
-//        }
-//    }
-
     private static void parallel(float[][] a1, float[][] b1) {
         Date start = new Date();
         SCAN_ARRAY[] tasks = new SCAN_ARRAY[threadNums];
