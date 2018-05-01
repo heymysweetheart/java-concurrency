@@ -225,26 +225,3 @@ public class Main {
     static Comparator<Map.Entry<String, Double>> gpaComparator = (entry1, entry2) -> (entry1.getValue() - entry2.getValue() > 0 ? 1 : -1);
 }
 
-
-
-class GPAAverager implements DoubleConsumer {
-
-    private double total = 0.0;
-    private int count = 0;
-
-    @Override
-    public void accept(double value) {
-        total += value;
-        count++;
-    }
-
-    public double average() {
-        return count > 0 ? (total)/count : 0;
-    }
-
-    public void combine(GPAAverager gpaAverager) {
-        this.count += gpaAverager.count;
-        this.total += gpaAverager.total;
-    }
-}
-
